@@ -46,6 +46,36 @@ public class CarController : MonoBehaviour
             wheel.wheelModel.position = wheelPosition;
             wheel.wheelModel.rotation = wheelRotation;
         }
+        if (Input.GetKeyDown("page up"))
+        {
+            ShiftUp();
+        }
+        if (Input.GetKeyDown("page down"))
+        {
+            ShiftDown();
+        }
+
+        Debug.Log(rb.velocity.magnitude);
+    }
+
+    // handle shifting a gear up
+    public void ShiftUp()
+    {
+        // check if we can shift up
+        if (currentGear < gears.Length - 1)
+        {
+            currentGear++;
+        }
+    }
+
+    // handle shifting a gear down
+    public void ShiftDown()
+    {
+        // check if we can shift down (note gear 0 is reverse)
+        if (currentGear > 0)
+        {
+            currentGear--;
+        }
     }
 
     void FixedUpdate()
@@ -53,13 +83,19 @@ public class CarController : MonoBehaviour
         float delta = Time.fixedDeltaTime;
         float rpm = 0f;
         int motorizedWheels = 0;
-        
+
         foreach (WheelData wheel in wheels) // Framerate-sensitive wheel updates.
         {
             // variable = (condition) ? consequenceValue : alternativeValue;
-            // wheel.collider.motorTorque = (wheel.motor) ? cInput.throttle * maxEngineTorque : 0f;
             wheel.collider.steerAngle = (wheel.steering) ? cInput.steering * maxSteeringAngle : 0f;
             wheel.collider.brakeTorque = (wheel.handbrake && cInput.handbrake) ? maxHandbrakeForce : 0f;
+            if (cInput.throttle < 0.0f)
+            {
+                // if we try to decelerate we brake.
+                wheel.collider.brakeTorque = -cInput.throttle * maxBrakeForce;
+                cInput.throttle = 0.0f;
+                engine.wantedRPM = 0.0f;
+            }
 
             if (wheel.motor)
             {
@@ -125,7 +161,7 @@ public struct WheelData // Stolen codes
 public struct ControlInput
 {
     [Range(-1f, 1f)] public float steering;
-    [Range(0f, 1f)] public float throttle;
+    [Range(-1f, 1f)] public float throttle;
     [Range(0f, 1f)] public float brake;
     public bool handbrake;
 }
