@@ -16,7 +16,7 @@ public class CarController : MonoBehaviour
 
     [Header("Debug information")]
     public ControlInput cInput; // Receive inputs from a separate script
-    // public EngineData engine;
+    public EngineData engine;
 
     private Vector3 wheelPosition;
     private Quaternion wheelRotation;
@@ -48,7 +48,7 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // float delta = Time.fixedDeltaTime;
+        float delta = Time.fixedDeltaTime;
         
         foreach (WheelData wheel in wheels) // Framerate-sensitive WheelData updates.
         {
@@ -59,7 +59,7 @@ public class CarController : MonoBehaviour
             wheel.collider.brakeTorque = (wheel.handbrake && cInput.handbrake) ? maxHandbrakeForce : 0f;
         }
 
-        // engine.wantedRPM = (5500f * cInput.throttle) * 0.1f + engine.wantedRPM * 0.9f;
+        engine.wantedRPM = (5500f * cInput.throttle) * 0.1f + engine.wantedRPM * 0.9f;
     }
 }
 
@@ -82,11 +82,9 @@ public struct ControlInput
     public bool handbrake;
 }
 
-/*
 [System.Serializable]
 public struct EngineData
 {
     public float RPM;
     public float wantedRPM;
 }
-*/
